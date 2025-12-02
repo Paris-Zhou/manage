@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhoupeng.modules.bus.mapper.BusProposalMapper">
+
+    <insert id="insert" parameterType="com.zhoupeng.modules.bus.model.BusProposal" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO bus_proposal
+        (product_id, code, type, money, relation,
+         Insured_name, Insured_age, Insured_birthday, Insured_gender,
+         Insured_location, Insured_habit, status, remark,
+         create_time, create_by, deleted)
+        VALUES
+            (#{productId}, #{code}, #{type}, #{money}, #{relation},
+             #{insuredName}, #{insuredAge}, #{insuredBirthday}, #{insuredGender},
+             #{insuredLocation}, #{insuredHabit}, #{status}, #{remark},
+             #{createTime}, #{createBy}, #{deleted})
+    </insert>
+
+    <select id="selectById" parameterType="int" resultType="com.zhoupeng.modules.bus.model.BusProposal">
+        SELECT *
+        FROM bus_proposal
+        WHERE id = #{id} AND (deleted IS NULL OR deleted = 0)
+    </select>
+
+    <!-- 统计总数 -->
+    <select id="countByCondition" parameterType="com.zhoupeng.modules.bus.dto.ProposalPageQueryDTO" resultType="int">
+        SELECT COUNT(1)
+        FROM bus_proposal p
+        WHERE (p.deleted IS NULL OR p.deleted = 0)
+        <if test="q.code != null and q.code != ''">
+            AND p.code LIKE CONCAT('%', #{q.code}, '%')
+        </if>
+        <if test="q.insuredName != null and q.insuredName != ''">
+            AND p.Insured_name LIKE CONCAT('%', #{q.insuredName}, '%')
+        </if>
+        <if test="q.status != null and q.status != ''">
+            AND p.status = #{q.status}
+        </if>
+    </select>
+
+    <!-- 分页查询 + 关联产品 -->
+    <resultMap id="ProposalPageVOMap" type="com.zhoupeng.modules.bus.vo.ProposalPageVO">
+        <id property="id" column="id"/>
+        <result property="code" column="code"/>
+        <result property="type" column="type"/>
+        <result property="money" column="money"/>
+        <result property="productId" column="product_id"/>
+        <result property="productName" column="product_name"/>
+        <result property="productCode" column="product_code"/>
+        <result property="company" column="company"/>
+        <result property="currencyCode" column="currency_code"/>
+        <result property="insuredName" column="Insured_name"/>
+        <result property="insuredAge" column="Insured_age"/>
+        <result property="insuredGender" column="Insured_gender"/>
+        <result property="insuredHabit" column="Insured_habit"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+
+        <select id="pageProposals" resultType="com.zhoupeng.modules.bus.vo.ProposalPageVO">
+            SELECT
+            p.id,
+            p.code,
+            p.type,
+            p.money,
+            p.relation,
+            p.Insured_name AS insuredName,
+            p.Insured_age AS insuredAge,
+            p.Insured_gender AS insuredGender,
+            p.status,
+            p.product_id AS productId,
+
+            prod.name AS productName,
+            prod.code AS productCode,
+            prod.company AS company,
+            prod.company_en AS companyEn
+            FROM bus_proposal p
+            LEFT JOIN bus_product prod
+            ON p.product_id = CAST(prod.id AS CHAR)
+            <where>
+                p.deleted = 0
+                <if test="q.code != null and q.code != ''">
+                    AND p.code LIKE CONCAT('%', #{q.code}, '%')
+                </if>
+
+                <if test="q.insuredName != null and q.insuredName != ''">
+                    AND p.Insured_name LIKE CONCAT('%', #{q.insuredName}, '%')
+                </if>
+                <if test="q.status != null and q.status != ''">
+                    AND p.status = #{q.status}
+                </if>
+            </where>
+            ORDER BY p.create_time DESC
+        </select>
+
+
+</mapper>

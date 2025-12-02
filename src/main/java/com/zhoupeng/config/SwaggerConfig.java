@@ -46,7 +46,7 @@ public class SwaggerConfig extends BaseSwaggerConfig {
 
     @Bean
     public Docket createOrderApi() {
-        return getDocket("订单管理", "com.zhoupeng.modules.order");
+        return getDocket("计划书管理", "com.zhoupeng.modules.bus");
     }
 
     @Bean

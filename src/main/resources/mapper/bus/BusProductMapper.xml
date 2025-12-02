@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zhoupeng.modules.bus.mapper.BusProductMapper">
+
+    <resultMap id="BusProductResultMap" type="com.zhoupeng.modules.bus.model.BusProduct">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="code" column="code"/>
+        <result property="type" column="type"/>
+        <result property="company" column="company"/>
+        <result property="companyEn" column="company_en"/>
+        <result property="location" column="location"/>
+        <result property="locationCode" column="location_code"/>
+        <result property="currencyCode" column="currency_code"/>
+        <result property="periodYear" column="period_year"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="deleted" column="deleted"/>
+    </resultMap>
+
+    <select id="selectById" resultMap="BusProductResultMap">
+        SELECT *
+        FROM bus_product
+        WHERE id = #{id} AND (deleted IS NULL OR deleted = 0)
+    </select>
+
+    <resultMap id="ProductSimpleMap" type="com.zhoupeng.modules.bus.dto.ProductSimpleDTO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="code" column="code"/>
+        <result property="company" column="company"/>
+        <result property="companyEn" column="company_en"/>
+        <result property="currencyCode" column="currency_code"/>
+        <result property="periodYear" column="period_year"/>
+    </resultMap>
+
+    <select id="selectProductOptions" resultMap="ProductSimpleMap">
+        SELECT
+        id,
+        name,
+        code,
+        company,
+        company_en   AS companyEn,
+        currency_code AS currencyCode,
+        period_year   AS periodYear
+        FROM bus_product
+        <where>
+            deleted = '0'
+            <if test="keyword != null and keyword != ''">
+                AND (
+                name    LIKE CONCAT('%', #{keyword}, '%')
+                OR type LIKE CONCAT('%', #{keyword}, '%')
+                OR company LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>
