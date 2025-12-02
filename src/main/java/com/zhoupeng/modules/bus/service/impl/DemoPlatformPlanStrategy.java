@@ -29,7 +29,7 @@ public class DemoPlatformPlanStrategy implements PlanTemplateStrategy {
                 new Page.GetByRoleOptions().setName("登 录")).click();
 
         // 简单等一下（你也可以写显式等待某个元素）
-        page.waitForTimeout(2000);
+        page.waitForTimeout(500);
     }
 
     @Override
@@ -44,46 +44,49 @@ public class DemoPlatformPlanStrategy implements PlanTemplateStrategy {
         page.getByRole(AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName("新增")).click();
 
-        // 等弹出“新建”弹窗
-        page.waitForSelector("div.ant-modal-title:has-text('新建')");
     }
 
     @Override
     public void createPlan(Page page, BusProposal data) {
-        // ==== 1. 功能归属：cascader，多级 hover + 最后一级 click ====
+        // 这里假设“新建”弹窗已经打开（你前面点了“新增”按钮）
+
+        // 1. 功能归属（例如：根功能A / 子功能B）
+        // 如果只有一层，就传一个；多级就传多个
         selectFunctionBelong(page, "动力域", "SADASDAD");
 
-        // ==== 2. 文本输入 ====
+        // 2. 功能名称
         page.fill("#form_item_name", "自动化功能004");
-        page.fill("#form_item_nameEn","auto_function_004");
 
-        // 负责人：搜索下拉
+        // 3. 功能英文名
+        page.fill("#form_item_nameEn", "auto_function_004");
+
+        // 4. 负责人（搜索下拉）
+        // keyword 用来过滤列表，optionText 是下拉里真实显示的名字
         selectOwner(page, "宋波", "宋波(songbo)");
 
+        // 5. 描述
         page.fill("#form_item_description", "这是通过 Playwright 自动创建的功能清单");
 
-        // ==== 3. 开发状态下拉 ====
+        // 6. 开发状态（根据你实际下拉里的文字改，比如：开发中 / 已完成 / 冻结 等）
         selectDevStatus(page, "develop");
 
-        // ==== 4. 提交 ====
+        // 7. 点击【确 认】按钮提交
         page.getByRole(AriaRole.BUTTON,
                 new Page.GetByRoleOptions().setName("确 认")).click();
 
-        // 等保存完成
+        // 等一下保存完成（可以换成等待某个成功提示）
         page.waitForTimeout(1000);
     }
-
-    // -------- 以下是给这个策略内部用的小工具方法 --------
-
-    // 功能归属 cascader：前面几级 hover，最后一级 click
-    private void selectFunctionBelong(Page page, String... path) {
-        Locator trigger = page.locator(
-                "div.ant-form-item:has(label[for='form_item_parentId']) .ant-select-selector"
-        );
+    // 功能归属（级联 Cascader，下拉里的具体类名可能要视页面再微调）
+    static void selectFunctionBelong(Page page, String... path) {
+        // 1. 打开功能归属的 cascader
+        Locator trigger = page
+                .locator("div.ant-form-item:has(label[for='form_item_parentId']) .ant-select-selector");
 
         trigger.click(new Locator.ClickOptions().setForce(true));
         page.waitForSelector(".ant-cascader-dropdown");
 
+        // 2. 逐级选择：前 n-1 级 hover，最后一级 click
         for (int i = 0; i < path.length; i++) {
             String text = path[i];
 
@@ -92,39 +95,48 @@ public class DemoPlatformPlanStrategy implements PlanTemplateStrategy {
                     .first();
 
             if (i < path.length - 1) {
+                // 不是最后一级：只 hover，让右侧子菜单展开
                 option.hover();
+                // 稍微等一下子菜单渲染（也可以换成等待下一级特定文本）
                 page.waitForTimeout(200);
             } else {
+                // 最后一级：真正点击选择
                 option.click();
             }
         }
     }
 
-    // 负责人下拉（可搜索）
-    private void selectOwner(Page page, String keyword, String optionText) {
-        Locator trigger = page.locator(
+    // 负责人：可搜索的 ant-select（form_item_functionOwnerId）
+    static void selectOwner(Page page, String keyword, String optionText) {
+        // 打开下拉
+        Locator selector = page.locator(
                 "div.ant-form-item:has(label[for='form_item_functionOwnerId']) .ant-select-selector"
         );
-        trigger.click();
+        selector.click();
 
+        // 在搜索框里输入关键字
         page.locator("#form_item_functionOwnerId").fill(keyword);
 
+        // 选择下拉中匹配的那一项
         page.locator(".ant-select-item-option-content")
                 .filter(new Locator.FilterOptions().setHasText(optionText))
                 .first()
                 .click();
     }
 
-    // 开发状态下拉
-    private void selectDevStatus(Page page, String optionText) {
-        Locator trigger = page.locator(
+    // 开发状态：普通 ant-select（form_item_developStatus）
+    static void selectDevStatus(Page page, String optionText) {
+        // 打开下拉
+        Locator selector = page.locator(
                 "div.ant-form-item:has(label[for='form_item_developStatus']) .ant-select-selector"
         );
-        trigger.click();
+        selector.click();
 
+        // 选中目标选项
         page.locator(".ant-select-item-option-content")
                 .filter(new Locator.FilterOptions().setHasText(optionText))
                 .first()
                 .click();
     }
+
 }

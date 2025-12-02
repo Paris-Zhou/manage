@@ -1,9 +1,11 @@
 package com.zhoupeng.modules.bus.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.zhoupeng.modules.bus.dto.BusProductPageQueryDTO;
 import com.zhoupeng.modules.bus.dto.ProductSimpleDTO;
 import com.zhoupeng.modules.bus.dto.ProposalCreateDTO;
 import com.zhoupeng.modules.bus.dto.ProposalPageQueryDTO;
+import com.zhoupeng.modules.bus.model.BusProduct;
 import com.zhoupeng.modules.bus.vo.ProposalPageVO;
 
 import java.util.List;
@@ -27,4 +29,6 @@ public interface BusProposalService {
      * 获取产品下拉列表
      */
     List<ProductSimpleDTO> listProductOptions(String keyword);
+
+    IPage<BusProduct> pageProducts(BusProductPageQueryDTO queryDTO);
 }

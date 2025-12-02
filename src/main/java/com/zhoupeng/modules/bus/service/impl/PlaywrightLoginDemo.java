@@ -1,4 +1,4 @@
-package com.zhoupeng.modules.ums.controller;
+package com.zhoupeng.modules.bus.service.impl;
 
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.options.AriaRole;
@@ -9,7 +9,7 @@ import com.microsoft.playwright.options.AriaRole;
  * create_time 2025/12/1:9:09
  */
 public class PlaywrightLoginDemo {
-    public static void main(String[] args) {
+    public static void show(String code){
         // 1. 启动 Playwright
         try (Playwright playwright = Playwright.create()) {
             // 2. 启动浏览器（带界面，方便你看）
@@ -55,12 +55,13 @@ public class PlaywrightLoginDemo {
             page.getByRole(AriaRole.BUTTON,
                     new Page.GetByRoleOptions().setName("新 增")
             ).click();
-            createFunction(page);
+            createFunction(page,code);
             page.waitForTimeout(5000);
             browser.close();
         }
     }
-    static void createFunction(Page page) {
+
+    static void createFunction(Page page,String code) {
         // 这里假设“新建”弹窗已经打开（你前面点了“新增”按钮）
 
         // 1. 功能归属（例如：根功能A / 子功能B）
@@ -68,10 +69,10 @@ public class PlaywrightLoginDemo {
         selectFunctionBelong(page, "动力域", "SADASDAD");
 
         // 2. 功能名称
-        page.fill("#form_item_name", "自动化功能003");
+        page.fill("#form_item_name", code);
 
         // 3. 功能英文名
-        page.fill("#form_item_nameEn", "auto_function_003");
+        page.fill("#form_item_nameEn", code);
 
         // 4. 负责人（搜索下拉）
         // keyword 用来过滤列表，optionText 是下拉里真实显示的名字
@@ -91,42 +92,6 @@ public class PlaywrightLoginDemo {
         page.waitForTimeout(1000);
     }
     // 功能归属（级联 Cascader，下拉里的具体类名可能要视页面再微调）
-//    static void selectFunctionBelong(Page page, String... path) {
-//        // 点击“功能归属”这一栏的 selector
-//        Locator selector = page.locator(
-//                "div.ant-form-item:has(label[for='form_item_parentId']) .ant-select-selector"
-//        );
-//        selector.click();
-//
-//        // 如果是多级，比如 ["根功能A", "子功能B"]，就一层层点
-//        for (String text : path) {
-//            page.locator(".ant-cascader-menu-item")
-//                    .filter(new Locator.FilterOptions().setHasText(text))
-//                    .first()
-//                    .click();
-//        }
-//    }
-//    static void selectFunctionBelong(Page page, String... path) {
-//        // 精确定位“功能归属”这一栏的 selector
-//        Locator trigger = page
-//                .locator("div.ant-form-item:has(label[for='form_item_parentId']) .ant-select-selector");
-//
-//        // 1. 强制点一下，确保不会被“不可点击/透明”拦住
-//        trigger.click(new Locator.ClickOptions().setForce(true));
-//
-//        // 2. 等下拉面板真正挂上 DOM
-//        page.waitForSelector(".ant-cascader-dropdown",
-//                new Page.WaitForSelectorOptions().setState(ATTACHED));
-//
-//        // 3. 逐级选择
-//        for (String text : path) {
-//            Locator option = page
-//                    .locator(".ant-cascader-menu-item")
-//                    .filter(new Locator.FilterOptions().setHasText(text))
-//                    .first();
-//            option.click();
-//        }
-//    }
     static void selectFunctionBelong(Page page, String... path) {
         // 1. 打开功能归属的 cascader
         Locator trigger = page
