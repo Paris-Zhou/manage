@@ -23,7 +23,7 @@ public interface BusProposalService {
     /**
      * 新增计划书
      */
-    void createProposal(ProposalCreateDTO dto, String currentUserId);
+    void createProposal(ProposalCreateDTO dto);
 
     /**
      * 获取产品下拉列表

@@ -21,7 +21,18 @@ public class PlaywrightLoginDemo {
 
             // 3. 打开登录页
             page.navigate("http://10.126.1.187/#/login?sdlkjLKJASD12USHDss12=asdjk123102");
+            // 找到“我知道了”按钮
+            Locator knowBtn = page
+                    .locator("div[id^='maxkb-'] .maxkb-button button")
+                    .filter(new Locator.FilterOptions().setHasText("我知道了"));
 
+            // 防止没弹出时报错：判断存在且可见再点
+            if (knowBtn.count() > 0) {
+                Locator first = knowBtn.first();
+                if (first.isVisible()) {
+                    first.click();
+                }
+            }
             // 4. 点击 “账号密码登录” tab
             // 根据你给的 HTML：role="tab"，文本=账号密码登录
             page.getByRole(AriaRole.TAB,

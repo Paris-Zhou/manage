@@ -9,8 +9,11 @@ import com.zhoupeng.modules.bus.dto.ProposalPageQueryDTO;
 import com.zhoupeng.modules.bus.model.BusProduct;
 import com.zhoupeng.modules.bus.service.BusProposalService;
 import com.zhoupeng.modules.bus.vo.ProposalPageVO;
+import com.zhoupeng.security.util.SecurityUtils;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -40,10 +43,9 @@ public class BusProposalController {
      * 新增计划书
      * 前端要先调用 `/api/proposals/products` 拿产品列表，下拉选择一个 productId，一起提交
      */
-    @PostMapping
+    @PostMapping("/create")
     public CommonResult<Void> create(@RequestBody ProposalCreateDTO dto) {
-        String currentUserId = "1";
-        busProposalService.createProposal(dto, currentUserId);
+        busProposalService.createProposal(dto);
         return CommonResult.success(null);
     }
 

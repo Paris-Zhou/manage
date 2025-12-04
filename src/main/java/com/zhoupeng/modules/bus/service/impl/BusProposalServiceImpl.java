@@ -14,6 +14,7 @@ import com.zhoupeng.modules.bus.model.BusProduct;
 import com.zhoupeng.modules.bus.model.BusProposal;
 import com.zhoupeng.modules.bus.service.BusProposalService;
 import com.zhoupeng.modules.bus.vo.ProposalPageVO;
+import com.zhoupeng.security.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,7 @@ public class BusProposalServiceImpl implements BusProposalService {
 
     @Override
     @Transactional
-    public void createProposal(ProposalCreateDTO dto, String currentUserId) {
+    public void createProposal(ProposalCreateDTO dto) {
         BusProposal entity = new BusProposal();
         // 先补全年龄和生日
         fillAgeAndBirthday(dto);
@@ -56,22 +57,17 @@ public class BusProposalServiceImpl implements BusProposalService {
         entity.setType(dto.getType());
         entity.setMoney(dto.getMoney());
         entity.setRelation(dto.getRelation());
-
         entity.setInsuredName(dto.getInsuredName());
-
-//        entity.setInsuredAge(dto.getInsuredAge());
-//        entity.setInsuredBirthday(dto.getInsuredBirthday());
-
         entity.setInsuredGender(dto.getInsuredGender());
         entity.setInsuredLocation(dto.getInsuredLocation());
         entity.setInsuredHabit(dto.getInsuredHabit());
-
+        entity.setInsuredAge(dto.getInsuredAge());
+        entity.setInsuredBirthday(dto.getInsuredBirthday());
         entity.setRemark(dto.getRemark());
         entity.setStatus("正常");
         entity.setDeleted(0);
-
         entity.setCreateTime(LocalDateTime.now());
-        entity.setCreateBy(currentUserId);
+        entity.setCreateBy(SecurityUtils.getLoginUsername());
         String format = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         // 简单生成一个计划书编号，你后面可以换成自己的规则
         entity.setCode("P" +format);
@@ -80,7 +76,7 @@ public class BusProposalServiceImpl implements BusProposalService {
         // 异步执行 Playwright，不阻塞当前请求
         new Thread(() -> {
             try {
-                PlaywrightLoginDemo.show(entity.getCode());
+//                PlaywrightLogin.show();
             } catch (Exception e) {
                 // 这里最好加点日志，避免线程悄悄挂了
                 log.error(e.getMessage());
